@@ -56,20 +56,9 @@ namespace HevSCGIHandlerModule
 			return pattern;
 		}
 
-        private async void write_message(OutputStream output_stream)
-        {
-			Response response = output_stream.get_data("response");
-			Task task = response.get_data("task");
-			Handler self = task.get_handler();
-			Request request = task.get_request();
-			HashTable<string, string> hash_table = request.get_header_hash_table();
-			string message = null;
-
-			message = "<strong>Handler:</strong> " + self.get_name() + " " + self.get_version();
-			message += "<br /><strong>RequestURI:</strong> " + hash_table.lookup("REQUEST_URI");
-			message += "<br /><strong>RemoteAddr:</strong> " + hash_table.lookup("REMOTE_ADDR");
-			message += "<br /><strong>RemotePort:</strong> " + hash_table.lookup("REMOTE_PORT");
-
+		private async void write_message(Task task,
+					OutputStream output_stream, string message)
+		{
 			try
 			{
 				yield output_stream.write_async(message.data, Priority.DEFAULT);
@@ -77,32 +66,39 @@ namespace HevSCGIHandlerModule
 			catch(Error e)
 			{
 			}
+		}
 
-			output_stream.set_data("response", null);
-			response.set_data("task", null);
-        }
-
-        private void write_header_handler(void *data)
-        {
-			Response response = (Response)data;
-
-			OutputStream output_stream = response.get_output_stream();
-
-			output_stream.set_data("response", response);
-			write_message.begin(output_stream);
-        }
-
-		public void handle (Object scgi_task)
+		public void handle(Object scgi_task)
         {
 			Task task = (Task)scgi_task;
+			Request request = task.get_request();
 			Response response = task.get_response();
 			HashTable<string, string> hash_table = response.get_header_hash_table();
 
 			hash_table.insert("Status", "200 OK");
 			hash_table.insert("Content-Type", "text/html");
 
-			response.set_data("task", task);
-			response.write_header(write_header_handler);
+			response.write_header_async.begin(null, (obj, res) =>
+			{
+				OutputStream output_stream = response.get_output_stream();
+				string message = null;
+
+				try
+				{
+					response.write_header_async.end(res);
+				}
+				catch(Error e)
+				{
+				}
+
+				hash_table = request.get_header_hash_table();
+				message = "<strong>Handler:</strong> " + get_name() + " " + get_version();
+				message += "<br /><strong>RequestURI:</strong> " + hash_table.lookup("REQUEST_URI");
+				message += "<br /><strong>RemoteAddr:</strong> " + hash_table.lookup("REMOTE_ADDR");
+				message += "<br /><strong>RemotePort:</strong> " + hash_table.lookup("REMOTE_PORT");
+
+				write_message.begin(task, output_stream, message);
+			});
         }
 	}
 
