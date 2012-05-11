@@ -71,8 +71,8 @@ namespace HevSCGIHandlerModule
 		public void handle(Object scgi_task)
         {
 			Task task = (Task)scgi_task;
-			Request request = task.get_request();
-			Response response = task.get_response();
+			Request request = (Request)task.get_request();
+			Response response = (Response)task.get_response();
 			HashTable<string, string> hash_table = response.get_header_hash_table();
 
 			hash_table.insert("Status", "200 OK");
