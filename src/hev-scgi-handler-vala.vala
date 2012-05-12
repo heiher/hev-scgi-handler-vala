@@ -1,6 +1,6 @@
 using HevSCGI;
 
-namespace HevSCGIHandlerModule {
+namespace HevSCGIHandler {
 
 	class Vala : Object, Handler {
 
@@ -81,11 +81,6 @@ namespace HevSCGIHandlerModule {
 				write_message.begin(task, output_stream, message);
 			});
         }
-	}
-
-	[ModuleInit]
-	public Type get_handler_type(TypeModule module) {
-		return typeof(Vala);
 	}
 }
 

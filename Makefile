@@ -8,7 +8,8 @@ BINDIR=bin
 VAPIDIR=vapi
  
 TARGET=$(BINDIR)/libhev-scgi-server-vala.so
-SRCFILES=$(SRCDIR)/hev-scgi-handler-vala.vala
+SRCFILES=$(SRCDIR)/hev-scgi-handler-module.vala \
+		 $(SRCDIR)/hev-scgi-handler-vala.vala
 VAPIFILE=$(VAPIDIR)/hev-scgi-server-vala.vapi
  
 all : $(CCOBJSFILE) $(TARGET)
