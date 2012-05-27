@@ -1,22 +1,43 @@
 # Makefile for hev-scgi-server
  
-CC=valac
-FLAGS=--vapidir=../hev-scgi-server-library/vapi --girdir=../hev-scgi-server-library/gir --pkg hev-scgi-1.0 --library hev-scgi-server-vala -X -shared -X -fPIC -X -I../hev-scgi-server-library/include -X -L../hev-scgi-server-library/bin -X -lhev-scgi-server
+VC=valac
+CPP=cpp
+CC=gcc
+
+VCFLAGS=--vapidir=../hev-scgi-server-library/vapi --girdir=../hev-scgi-server-library/gir --pkg hev-scgi-1.0 --library hev-scgi-server-vala
+CCFLAGS=-g -fPIC `pkg-config --cflags gio-2.0` -I../hev-scgi-server-library/include
+LDFLAGS=-shared `pkg-config --libs gio-2.0` -L../hev-scgi-server-library/bin -lhev-scgi-server
  
 SRCDIR=src
 BINDIR=bin
-VAPIDIR=vapi
+BUILDDIR=build
  
 TARGET=$(BINDIR)/libhev-scgi-server-vala.so
-SRCFILES=$(SRCDIR)/hev-scgi-handler-module.vala \
-		 $(SRCDIR)/hev-scgi-handler-vala.vala
-VAPIFILE=$(VAPIDIR)/hev-scgi-server-vala.vapi
- 
-all : $(CCOBJSFILE) $(TARGET)
- 
-clean : 
-	@echo -n "Clean ... " && $(RM) $(BINDIR)/* $(VAPIDIR)/* && echo "OK"
- 
-$(TARGET) : $(SRCFILES)
-	@echo -n "Building $^ to $@ ... " && $(CC) -o $@ --vapi=$(VAPIFILE) $^ $(FLAGS) && echo "OK"
- 
+
+VFILES=$(wildcard ./src/*.vala)
+CFILES=$(patsubst ./$(SRCDIR)/%.vala,./$(BUILDDIR)/$(SRCDIR)/%.c,$(VFILES))
+COBJFILES=$(patsubst %.c,%.o,$(CFILES))
+
+DEPEND=$(COBJFILES:.o=.dep)
+
+all : $(TARGET)
+
+clean :
+	@echo -n "Clean ... " && $(RM) -rf $(BINDIR)/* $(BUILDDIR)/* && echo "OK"
+
+$(CFILES) : $(VFILES)
+	@echo -n "Building $^ ... " && $(VC) $(VCFLAGS) -C -d $(BUILDDIR) $^ && echo "OK"
+
+$(COBJFILES) : $(CFILES)
+
+$(TARGET) : $(COBJFILES)
+	@echo -n "Linking $^ to $@ ... " && $(CC) -o $@ $^ $(LDFLAGS) && echo "OK"
+
+$(BUILDDIR)/%.dep : $(BUILDDIR)/%.c
+	@$(CPP) $(CCFLAGS) -MM -MT $(@:.dep=.o) -o $@ $<
+
+$(BUILDDIR)/%.o : $(BUILDDIR)/%.c
+	@echo -n "Building $< ... " && $(CC) $(CCFLAGS) -c -o $@ $< && echo "OK"
+
+-include $(DEPEND)
+
