@@ -20,6 +20,8 @@ COBJFILES=$(patsubst %.c,%.o,$(CFILES))
 
 DEPEND=$(COBJFILES:.o=.dep)
 
+.PHONY: all clean
+
 all : $(TARGET)
 
 clean :
@@ -27,8 +29,6 @@ clean :
 
 $(CFILES) : $(VFILES)
 	@echo -n "Building $^ ... " && $(VC) $(VCFLAGS) -C -d $(BUILDDIR) $^ && echo "OK"
-
-$(COBJFILES) : $(CFILES)
 
 $(TARGET) : $(COBJFILES)
 	@echo -n "Linking $^ to $@ ... " && $(CC) -o $@ $^ $(LDFLAGS) && echo "OK"
