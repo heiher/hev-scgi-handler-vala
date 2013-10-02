@@ -2,7 +2,11 @@
  
 VC=valac
 
-VCFLAGS=--vapidir=../hev-scgi-server-library/vapi --girdir=../hev-scgi-server-library/gir --pkg hev-scgi-1.0 --library hev-scgi-server-vala -g -X -fPIC -X -shared -X -I../hev-scgi-server-library/include -X -L../hev-scgi-server-library/bin -X -lhev-scgi-server
+VCFLAGS=--vapidir=../hev-scgi-server-library/vapi \
+		--girdir=../hev-scgi-server-library/gir \
+		--pkg hev-scgi-1.0 --library hev-scgi-server-vala \
+		-g -X -fPIC -X -shared -X -I../hev-scgi-server-library/include \
+		-X -L../hev-scgi-server-library/bin -X -lhev-scgi-server
  
 SRCDIR=src
 BINDIR=bin
