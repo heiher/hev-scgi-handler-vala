@@ -47,7 +47,7 @@ namespace HevSCGIHandler {
 			return pattern;
 		}
 
-		private async void write_message(Task task, OutputStream output_stream, string message) {
+		private async void write_message(HevSCGI.Task task, OutputStream output_stream, string message) {
 			try {
 				yield output_stream.write_async(message.data, Priority.DEFAULT);
 			} catch(Error e) {
@@ -55,7 +55,7 @@ namespace HevSCGIHandler {
 		}
 
 		public void handle(Object scgi_task) {
-			Task task = (Task)scgi_task;
+			HevSCGI.Task task = (HevSCGI.Task)scgi_task;
 			Request request = (Request)task.get_request();
 			Response response = (Response)task.get_response();
 			HashTable<string, string> hash_table = response.get_header_hash_table();
