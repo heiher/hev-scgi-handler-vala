@@ -1,5 +1,7 @@
 # Makefile for hev-scgi-handler-vala
  
+PROJECT=hev-scgi-handler-vala
+
 VC=valac
 
 VCFLAGS=--vapidir=../hev-scgi-server-library/vapi \
@@ -16,11 +18,22 @@ TARGET=../$(BINDIR)/libhev-scgi-handler-vala.so
 
 VFILES=$(wildcard ./src/*.vala)
 
+BUILDMSG="\e[1;31mBUILD\e[0m $<"
+CLEANMSG="\e[1;34mCLEAN\e[0m $(PROJECT)"
+
+V :=
+ECHO_PREFIX := @
+ifeq ($(V),1)
+	undefine ECHO_PREFIX
+endif
+
 all : $(TARGET)
 
 clean :
-	@echo -n "Clean ... " && $(RM) -rf $(BINDIR)/* $(BUILDDIR)/* && echo "OK"
+	$(ECHO_PREFIX) $(RM) -rf $(BINDIR)/* $(BUILDDIR)/*
+	@echo -e $(CLEANMSG)
 
 $(TARGET) : $(VFILES)
-	@echo -n "Building $^ to $@ ... " && $(VC) -d $(BUILDDIR) -o $@ $^ $(VCFLAGS) && echo "OK"
+	$(ECHO_PREFIX) $(VC) -d $(BUILDDIR) -o $@ $^ $(VCFLAGS)
+	@echo -e $(BUILDMSG)
 
